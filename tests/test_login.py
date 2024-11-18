@@ -1,46 +1,42 @@
-from selenium import webdriver
+import os
+from dotenv import load_dotenv
 from selenium.webdriver.common.by import By
-import pytest
 
-
-@pytest.fixture
-def setup_driver():
-    driver = webdriver.Chrome()
-    driver.get("https://www.saucedemo.com/")
-    yield driver
-    driver.quit()
-
-
+load_dotenv()
 def test_valid_login(setup_driver):
     driver = setup_driver
-    driver.find_element(By.ID, "user-name").send_keys("standard_user")
-    driver.find_element(By.ID, "password").send_keys("secret_sauce")
+    username = os.getenv('SAUCEDEMO_USERNAME')
+    password = os.getenv('SAUCEDEMO_PASSWORD')
+    driver.find_element(By.ID, "user-name").send_keys(username)
+    driver.find_element(By.ID, "password").send_keys(password)
     driver.find_element(By.ID, "login-button").click()
     assert "inventory.html" in driver.current_url
 
 
 def test_invalid_login(setup_driver):
     driver = setup_driver
-    driver.find_element(By.ID, "user-name").send_keys("standard_user")
-    driver.find_element(By.ID, "password").send_keys("<PASSWORD>")
+    driver.find_element(By.ID, "user-name").send_keys("dummy_username")
+    driver.find_element(By.ID, "password").send_keys("dummy_password")
     driver.find_element(By.ID, "login-button").click()
     error_msg = driver.find_element(By.CLASS_NAME, "error-message-container").text
     assert "Epic sadface" in error_msg
 
 
-def test_ivalid_login_wrong_password(setup_driver):
+def test_invalid_login_wrong_password(setup_driver):
     driver = setup_driver
-    driver.find_element(By.ID, "user-name").send_keys("standard_user")
-    driver.find_element(By.ID, "password").send_keys("wrong_password")
+    username = os.getenv('USERNAME')
+    driver.find_element(By.ID, "user-name").send_keys(username)
+    driver.find_element(By.ID, "password").send_keys("dummy_password")
     driver.find_element(By.ID, "login-button").click()
     error_msg = driver.find_element(By.CLASS_NAME, "error-message-container").text
     assert "Epic sadface" in error_msg
 
 
-def test_ivalid_login_wrong_username(setup_driver):
+def test_invalid_login_wrong_username(setup_driver):
     driver = setup_driver
-    driver.find_element(By.ID, "user-name").send_keys("standard_user")
-    driver.find_element(By.ID, "password").send_keys("wrong_password")
+    password = os.getenv('SAUCEDEMO_PASSWORD')
+    driver.find_element(By.ID, "user-name").send_keys("dummy_username")
+    driver.find_element(By.ID, "password").send_keys(password)
     driver.find_element(By.ID, "login-button").click()
     error_msg = driver.find_element(By.CLASS_NAME, "error-message-container").text
     assert "Epic sadface" in error_msg
@@ -49,14 +45,15 @@ def test_ivalid_login_wrong_username(setup_driver):
 def test_invalid_login_no_username(setup_driver):
     driver = setup_driver
     driver.find_element(By.ID, "user-name").send_keys("")
-    driver.find_element(By.ID, "password").send_keys("wrong_password")
+    driver.find_element(By.ID, "password").send_keys("dummy_password")
     driver.find_element(By.ID, "login-button").click()
     error_msg = driver.find_element(By.CLASS_NAME, "error-message-container").text
     assert "Username is required" in error_msg
 
 def test_invalid_login_no_password(setup_driver):
     driver = setup_driver
-    driver.find_element(By.ID, "user-name").send_keys("standard_user")
+    username = os.getenv('USERNAME')
+    driver.find_element(By.ID, "user-name").send_keys(username)
     driver.find_element(By.ID, "password").send_keys("")
     driver.find_element(By.ID, "login-button").click()
     error_msg = driver.find_element(By.CLASS_NAME, "error-message-container").text
